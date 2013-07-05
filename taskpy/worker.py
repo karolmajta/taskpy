@@ -23,7 +23,7 @@ def run_job(config, inp):
 		# Executable permissions
 		os.chmod(script.name, stat.S_IRWXU)
 		# Run the script, capturing the output
-		process = subprocess.Popen([script.name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		process = subprocess.Popen([script.name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 		out, _ = process.communicate(input=inp)
 		rcode = process.wait()
 		# Delete temp file

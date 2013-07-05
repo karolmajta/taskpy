@@ -10,7 +10,6 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 import taskpy.models
 from taskpy.widgets.list import ExpandableFieldList
-import StringIO
 
 def format_status(view, context, model, field):
 	'''Format status field to have an icon'''
@@ -83,10 +82,11 @@ class JobsView(ModelView):
 		run.job_id = job.id
 		run.start_time = datetime.datetime.utcnow()
 		cfg = taskpy.models.run.RunConfig(job)
-		inp = json.dumps(request.json)
-		inp_file = StringIO.StringIO()
-		inp_file.write('First line.\n')
-		task = taskpy.worker.run_job.apply_async((cfg, inp_file), link=taskpy.worker.record_results.s())
+                if request.json:
+		    inp = json.dumps(request.json)
+                else:
+                    inp = None
+		task = taskpy.worker.run_job.apply_async((cfg, inp), link=taskpy.worker.record_results.s())
 		run.celery_id = task.id
 		taskpy.models.db.session.add(run)
 		taskpy.models.db.session.commit()
