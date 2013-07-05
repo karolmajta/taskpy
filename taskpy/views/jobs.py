@@ -73,7 +73,7 @@ class JobsView(ModelView):
 		here = flask.url_for('.job_view', id=id)
 		return self.render('job.html', job=job, return_url=here)
 
-	@admin.expose('/job/<id>/run')
+	@admin.expose('/job/<id>/run', methods=['GET', 'POST'])
 	def start_run_view(self, id):
 		job = self.get_one(id)
 		if not job:
@@ -85,7 +85,7 @@ class JobsView(ModelView):
                 if request.json:
 		    inp = json.dumps(request.json)
                 else:
-                    inp = None
+                    inp = json.dumps(request.form)
 		task = taskpy.worker.run_job.apply_async((cfg, inp), link=taskpy.worker.record_results.s())
 		run.celery_id = task.id
 		taskpy.models.db.session.add(run)
