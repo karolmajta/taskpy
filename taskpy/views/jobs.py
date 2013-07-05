@@ -1,5 +1,8 @@
-import flask
+import json
 import datetime
+
+import flask
+from flask import request
 from jinja2 import Markup
 from flask.ext import admin, wtf
 from flask.ext.admin.contrib.sqlamodel import ModelView
@@ -79,7 +82,8 @@ class JobsView(ModelView):
 		run.job_id = job.id
 		run.start_time = datetime.datetime.utcnow()
 		cfg = taskpy.models.run.RunConfig(job)
-		task = taskpy.worker.run_job.apply_async((cfg,), link=taskpy.worker.record_results.s())
+		inp = json.dumps(request.json)
+		task = taskpy.worker.run_job.apply_async((cfg, inp), link=taskpy.worker.record_results.s())
 		run.celery_id = task.id
 		taskpy.models.db.session.add(run)
 		taskpy.models.db.session.commit()

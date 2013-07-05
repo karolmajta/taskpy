@@ -1,8 +1,8 @@
 import os
 import stat
 import tempfile
-from flask import current_app as app
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask import current_app as app #@UnresolvedImport
+from flask.ext.sqlalchemy import SQLAlchemy #@UnresolvedImport
 
 db = SQLAlchemy()
 
