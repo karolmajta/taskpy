@@ -42,7 +42,7 @@ def main():
 				, help="Host interface to bind to")
 	args = parser.parse_args()
 	app = make_app()
-	app.run(debug=True, host=args.host)
+	app.run(debug=False, host=args.host)
 
 def celery_main():
 	# Setup argv to add the 'worker' command for celery
