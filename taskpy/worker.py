@@ -11,7 +11,7 @@ from taskpy.models import db, Run, TaskResult
 celery = Celery('taskpy-worker', broker='amqp://guest@localhost//', backend='amqp')
 
 @celery.task
-def run_job(config):
+def run_job(config, inp):
 	result = RunResult(celery_id=run_job.request.id)
 	result.record_begin()
 	success = True
@@ -23,15 +23,17 @@ def run_job(config):
 		# Executable permissions
 		os.chmod(script.name, stat.S_IRWXU)
 		# Run the script, capturing the output
-		process = subprocess.Popen([script.name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		output = process.communicate()[0]
+		process = subprocess.Popen([script.name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+		out, _ = process.communicate(input=inp)
 		rcode = process.wait()
 		# Delete temp file
 		os.remove(script.name)
-		result.record_task(task['id'], output, rcode)
+		result.record_task(task['id'], out, rcode)
 		if rcode != 0:
 			success = False
 			break
+		else:
+			inp = out
 	result.record_end(success)
 	return result
 
